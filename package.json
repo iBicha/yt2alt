@@ -1,0 +1,23 @@
+{
+  "name": "yt2alt",
+  "type": "module",
+  "version": "0.1.1",
+  "description": "Export your data from Youtube and import it to an alternative platform",
+  "scripts": {
+    "start": "node ./src/cli.js"
+  },
+  "bin" : {
+    "yt2alt": "./src/cli.js"
+  },
+  "author": "Brahim Hadriche",
+  "license": "MIT",
+  "dependencies": {
+    "@inquirer/checkbox": "^1.5.0",
+    "@inquirer/confirm": "^2.0.15",
+    "@inquirer/input": "^1.2.14",
+    "@inquirer/prompts": "^3.3.0",
+    "clipboardy": "^4.0.0",
+    "open": "^10.0.1",
+    "youtubei.js": "^8.1.0"
+  }
+}
