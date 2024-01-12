@@ -1,7 +1,7 @@
 #!/usr/bin/env node
-import Invidious from "./invidious.js";
+import { Invidious, InvidiousCallbackServer } from "./invidious.js";
 import Youtube from "./youtube.js";
-import { writeFileSync } from "fs";
+import { existsSync, writeFileSync } from "fs";
 import confirm from '@inquirer/confirm';
 import { select } from '@inquirer/prompts';
 import checkbox, { Separator } from '@inquirer/checkbox';
@@ -26,6 +26,8 @@ console.warn = (...args) => {
         return;
     }
 
+    console.log()
+
     const youtube = new Youtube();
     const innertube = await youtube.createSession(CACHE_ENABLED);
 
@@ -49,6 +51,8 @@ console.warn = (...args) => {
     if (CACHE_ENABLED) {
         await innertube.session.oauth.cacheCredentials();
     }
+
+    console.log()
 
     console.log('Reading library...');
     const libraryPlaylists = await youtube.getLibraryPlaylists()
@@ -76,6 +80,8 @@ console.warn = (...args) => {
         required: true,
     });
 
+    console.log()
+
     const fields = {};
     for (const choice of importChoices) {
         if (typeof choice === 'string') {
@@ -91,31 +97,108 @@ console.warn = (...args) => {
     const exportChoice = await select({
         message: 'Select platform to export to',
         choices: [
-            { name: 'Invidious (direct export)', value: 'invidious_api', disabled: true },
+            { name: 'Invidious (API import)', value: 'invidious_api' },
             { name: 'Invidious (save to file)', value: 'invidious_file' },
         ],
     });
 
+    console.log()
+
     if (exportChoice === 'invidious_api') {
-        throw new Error('Not implemented');
-    } else if (exportChoice === 'invidious_file') {
-        const filename = await input({
-            message: 'Enter file name',
-            default: 'invidious-profile.json',
-            validate: (value) => {
-                if (/^[\w\-. ]+$/.test(value) === false) {
-                    return 'Please enter a valid file name';
+        let invidiousServer = '';
+        let validServer = false;
+        while (!validServer) {
+            invidiousServer = await input({
+                message: 'Enter Invidious server URL',
+                default: '',
+                validate: (value) => {
+                    if (/^https?:\/\/.*$/.test(value) === false) {
+                        return 'Please enter a valid url';
+                    }
+                    return true;
+                },
+            });
+
+            if (invidiousServer.endsWith('/')) {
+                invidiousServer = invidiousServer.slice(0, -1);
+            }
+
+            console.log('Checking server...');
+            validServer = await Invidious.pingServer(invidiousServer);
+            if (!validServer) {
+                const tryAgain = await confirm({ message: 'Failed to communicate with Invidious server. Try again?' });
+                if (!tryAgain) {
+                    return;
                 }
-                return true;
-            },
-        });
+            }
+        }
+
+        console.log()
+
+
+        const callbackServer = new InvidiousCallbackServer(invidiousServer);
+        await callbackServer.startServer();
+
+        console.log(`Go to ${callbackServer.authLink} in your browser and authenticate.`);
+        const openBrowserAnswer = await confirm({ message: 'Open url in the browser now?' });
+        if (openBrowserAnswer) {
+            open(callbackServer.authLink);
+        }
+        console.log()
+
+        const accessToken = await callbackServer.getAccessToken();
+
+        const invidiousProfile = Invidious.profileToInvidiousProfile(profile);
+        // We split the profile into chunks to avoid timeouts.
+        // Importing playlists can take a long time since videos are fetched one by one
+        // Also it gives a sense of progress to the user
+        const profileChunks = Invidious.invidiousProfileToChunks(invidiousProfile);
+        for(let i = 0; i < profileChunks.length; i++) {
+            const chunk = profileChunks[i];
+            console.log(`Importing profile to Invidious (${chunk.name}) [${i + 1} of ${profileChunks.length}]...`);
+            await Invidious.importProfile(invidiousServer, accessToken, chunk.payload);
+        }
+
+        console.log()
+
+        console.log('Signing out from Invidious...');
+        console.log()
+        await Invidious.deleteAccessToken(invidiousServer, accessToken);
+    } else if (exportChoice === 'invidious_file') {
+        let filename = ''
+        let validFilename = false;
+        while (!validFilename) {
+            filename = await input({
+                message: 'Enter file name',
+                default: 'invidious-profile.json',
+                validate: (value) => {
+                    if (/^[\w\-. ]+$/.test(value) === false) {
+                        return 'Please enter a valid file name';
+                    }
+                    return true;
+                },
+            });
+            validFilename = true;
+
+            if(existsSync(filename)) {
+                const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
+                if (!overwrite) {
+                    validFilename = false;
+                    continue;
+                }
+            }
+        }
+        console.log()
+
         const invidiousProfile = Invidious.profileToInvidiousProfile(profile);
         writeFileSync(filename, JSON.stringify(invidiousProfile, null, 4));
         console.log(`Profile saved to ${filename}`);
+        console.log()
     }
 
     if (!CACHE_ENABLED) {
-        console.log('Signing out...');
+        console.log('Signing out from Youtube...');
+        console.log()
         await innertube.session.signOut();
     }
 

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node ./src/cli.js"
   },
-  "bin" : {
+  "bin": {
     "yt2alt": "./src/cli.js"
   },
   "author": "Brahim Hadriche",
@@ -17,6 +17,7 @@
     "@inquirer/input": "^1.2.14",
     "@inquirer/prompts": "^3.3.0",
     "clipboardy": "^4.0.0",
+    "express": "^4.18.2",
     "open": "^10.0.1",
     "youtubei.js": "^8.2.0"
   }
