@@ -8,6 +8,7 @@ import checkbox, { Separator } from '@inquirer/checkbox';
 import input from '@inquirer/input';
 import clipboard from 'clipboardy';
 import open from 'open';
+import { NewPipe } from "./newpipe.js";
 
 const CACHE_ENABLED = false;
 const DISABLE_WARNINGS = true;
@@ -99,6 +100,7 @@ console.warn = (...args) => {
         choices: [
             { name: 'Invidious (API import)', value: 'invidious_api' },
             { name: 'Invidious (save to file)', value: 'invidious_file' },
+            { name: 'NewPipe (save to file)', value: 'newpipe_file' },
         ],
     });
 
@@ -192,6 +194,35 @@ console.warn = (...args) => {
 
         const invidiousProfile = Invidious.profileToInvidiousProfile(profile);
         writeFileSync(filename, JSON.stringify(invidiousProfile, null, 4));
+        console.log(`Profile saved to ${filename}`);
+        console.log()
+    } else if (exportChoice === 'newpipe_file') {
+        let filename = ''
+        let validFilename = false;
+        while (!validFilename) {
+            filename = await input({
+                message: 'Enter file name',
+                default: 'newpipe-profile.zip',
+                validate: (value) => {
+                    if (/^[\w\-. ]+$/.test(value) === false) {
+                        return 'Please enter a valid file name';
+                    }
+                    return true;
+                },
+            });
+            validFilename = true;
+
+            if(existsSync(filename)) {
+                const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
+                if (!overwrite) {
+                    validFilename = false;
+                    continue;
+                }
+            }
+        }
+        console.log()
+
+        await NewPipe.createNewPipeProfile(profile, filename);
         console.log(`Profile saved to ${filename}`);
         console.log()
     }
