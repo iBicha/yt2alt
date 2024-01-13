@@ -1,10 +1,11 @@
 {
   "name": "yt2alt",
   "type": "module",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Export your data from Youtube and import it to an alternative platform",
   "scripts": {
-    "start": "node ./src/cli.js"
+    "start": "node ./src/cli.js",
+    "update-deps": "npx npm-check-updates -u"
   },
   "bin": {
     "yt2alt": "./src/cli.js"
@@ -18,7 +19,7 @@
     "@inquirer/prompts": "^3.3.0",
     "clipboardy": "^4.0.0",
     "express": "^4.18.2",
-    "open": "^10.0.1",
+    "open": "^10.0.3",
     "youtubei.js": "^8.2.0"
   }
 }
