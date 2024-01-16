@@ -1,6 +1,6 @@
 # yt2alt
 
-yt2alt is a command line tool to export your profile from Youtube and import it to an alternative platform, such as Invidious.
+yt2alt is a command line tool to export your profile from Youtube and import it to an alternative platform.
 Uses [YouTube.js](https://github.com/LuanRT/YouTube.js) for extraction.
 
 ## Usage
