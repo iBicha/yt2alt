@@ -11,6 +11,10 @@ import open from 'open';
 import { Piped } from "./piped.js";
 import { NewPipe } from "./newpipe.js";
 
+import { createRequire } from "module";
+const require = createRequire(import.meta.url)
+const { version } = require('../package.json')
+
 const CACHE_ENABLED = false;
 const DISABLE_WARNINGS = true;
 
@@ -23,8 +27,6 @@ console.warn = (...args) => {
 };
 
 (async () => {
-    const version = JSON.parse(readFileSync('package.json')).version;
-
     console.log(`yt2alt v${version}`);
     console.log()
 
@@ -208,7 +210,7 @@ console.warn = (...args) => {
             console.log()
         }
 
-        if(fields.channels) {
+        if (fields.channels) {
             let filename = ''
             let validFilename = false;
             while (!validFilename) {
@@ -223,7 +225,7 @@ console.warn = (...args) => {
                     },
                 });
                 validFilename = true;
-    
+
                 if (existsSync(filename)) {
                     const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
                     if (!overwrite) {
@@ -233,7 +235,7 @@ console.warn = (...args) => {
                 }
             }
             console.log()
-    
+
             const pipedSubscriptions = Piped.profileToPipedSubscriptions(profile);
             writeFileSync(filename, JSON.stringify(pipedSubscriptions, null, 4));
             console.log(`Subscriptions saved to ${filename}`);
@@ -255,7 +257,7 @@ console.warn = (...args) => {
                     },
                 });
                 validFilename = true;
-    
+
                 if (existsSync(filename)) {
                     const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
                     if (!overwrite) {
@@ -275,7 +277,7 @@ console.warn = (...args) => {
         console.log("Note: Only subscriptions will be exported for NewPipe.")
         console.log()
 
-        if(fields.channels) {
+        if (fields.channels) {
             let filename = ''
             let validFilename = false;
             while (!validFilename) {
@@ -290,7 +292,7 @@ console.warn = (...args) => {
                     },
                 });
                 validFilename = true;
-    
+
                 if (existsSync(filename)) {
                     const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
                     if (!overwrite) {
@@ -300,7 +302,7 @@ console.warn = (...args) => {
                 }
             }
             console.log()
-    
+
             const newPipeSubscriptions = NewPipe.profileToNewPipeSubscriptions(profile);
             writeFileSync(filename, JSON.stringify(newPipeSubscriptions, null, 4));
             console.log(`Subscriptions saved to ${filename}`);
