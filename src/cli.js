@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { Invidious, InvidiousCallbackServer } from "./invidious.js";
 import Youtube from "./youtube.js";
-import { existsSync, writeFileSync } from "fs";
+import { existsSync, readFileSync, writeFileSync } from "fs";
 import confirm from '@inquirer/confirm';
 import { select } from '@inquirer/prompts';
 import checkbox, { Separator } from '@inquirer/checkbox';
@@ -23,6 +23,11 @@ console.warn = (...args) => {
 };
 
 (async () => {
+    const version = JSON.parse(readFileSync('package.json')).version;
+
+    console.log(`yt2alt v${version}`);
+    console.log()
+
     const initialAnswer = await confirm({ message: 'This tool will log into your Youtube account, read your data, and allow\nyou to import it to other platforms, such as Invidious. Continue?' });
     if (!initialAnswer) {
         return;
