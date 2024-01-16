@@ -10,7 +10,7 @@ export class Invidious {
         const invidiousProfile = {}
 
         if (profile.channels) {
-            invidiousProfile.subscriptions = profile.channels;
+            invidiousProfile.subscriptions = profile.channels.map(channel => channel.id);
         }
 
         if (profile.history) {

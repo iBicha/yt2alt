@@ -71,12 +71,22 @@ export default class Youtube {
         await this.createSession();
 
         const feed = await this.innertube.getChannelsFeed();
-        const channels = feed.channels.map(channel => channel.id);
+        const channels = feed.channels.map(channel => {
+            return {
+                id: channel.id,
+                name: channel.author.name
+            }
+        });
 
         while (feed.has_continuation) {
             try {
                 feed = await feed.getContinuation();
-                channels.push(...feed.channels.map(channel => channel.id));
+                channels.push(...feed.channels.map(channel => {
+                    return {
+                        id: channel.id,
+                        name: channel.author.name
+                    }
+                }));
             } catch (error) {
                 console.error(error);
                 break;

@@ -8,6 +8,7 @@ import checkbox, { Separator } from '@inquirer/checkbox';
 import input from '@inquirer/input';
 import clipboard from 'clipboardy';
 import open from 'open';
+import { Piped } from "./piped.js";
 
 const CACHE_ENABLED = false;
 const DISABLE_WARNINGS = true;
@@ -99,6 +100,7 @@ console.warn = (...args) => {
         choices: [
             { name: 'Invidious (API import)', value: 'invidious_api' },
             { name: 'Invidious (save to file)', value: 'invidious_file' },
+            { name: 'Piped (save to file)', value: 'piped_file' },
         ],
     });
 
@@ -135,7 +137,6 @@ console.warn = (...args) => {
 
         console.log()
 
-
         const callbackServer = new InvidiousCallbackServer(invidiousServer);
         await callbackServer.startServer();
 
@@ -153,7 +154,7 @@ console.warn = (...args) => {
         // Importing playlists can take a long time since videos are fetched one by one
         // Also it gives a sense of progress to the user
         const profileChunks = Invidious.invidiousProfileToChunks(invidiousProfile);
-        for(let i = 0; i < profileChunks.length; i++) {
+        for (let i = 0; i < profileChunks.length; i++) {
             const chunk = profileChunks[i];
             console.log(`Importing profile to Invidious (${chunk.name}) [${i + 1} of ${profileChunks.length}]...`);
             await Invidious.importProfile(invidiousServer, accessToken, chunk.payload);
@@ -180,7 +181,7 @@ console.warn = (...args) => {
             });
             validFilename = true;
 
-            if(existsSync(filename)) {
+            if (existsSync(filename)) {
                 const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
                 if (!overwrite) {
                     validFilename = false;
@@ -194,6 +195,75 @@ console.warn = (...args) => {
         writeFileSync(filename, JSON.stringify(invidiousProfile, null, 4));
         console.log(`Profile saved to ${filename}`);
         console.log()
+    } else if (exportChoice === 'piped_file') {
+        if (fields.history) {
+            console.log("Note: watch history is not supported by Piped, and will not be exported.")
+            console.log()
+        }
+
+        if(fields.channels) {
+            let filename = ''
+            let validFilename = false;
+            while (!validFilename) {
+                filename = await input({
+                    message: 'Enter file name',
+                    default: 'subscriptions.json',
+                    validate: (value) => {
+                        if (/^[\w\-. ]+$/.test(value) === false) {
+                            return 'Please enter a valid file name';
+                        }
+                        return true;
+                    },
+                });
+                validFilename = true;
+    
+                if (existsSync(filename)) {
+                    const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
+                    if (!overwrite) {
+                        validFilename = false;
+                        continue;
+                    }
+                }
+            }
+            console.log()
+    
+            const pipedSubscriptions = Piped.profileToPipedSubscriptions(profile);
+            writeFileSync(filename, JSON.stringify(pipedSubscriptions, null, 4));
+            console.log(`Subscriptions saved to ${filename}`);
+            console.log()
+        }
+
+        if (fields.likedVideos || fields.watchLater || fields.homeFeed || fields.playlists) {
+            let filename = ''
+            let validFilename = false;
+            while (!validFilename) {
+                filename = await input({
+                    message: 'Enter file name',
+                    default: 'playlists.json',
+                    validate: (value) => {
+                        if (/^[\w\-. ]+$/.test(value) === false) {
+                            return 'Please enter a valid file name';
+                        }
+                        return true;
+                    },
+                });
+                validFilename = true;
+    
+                if (existsSync(filename)) {
+                    const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
+                    if (!overwrite) {
+                        validFilename = false;
+                        continue;
+                    }
+                }
+            }
+            console.log()
+
+            const pipedPlaylists = Piped.profileToPipedPlaylists(profile);
+            writeFileSync(filename, JSON.stringify(pipedPlaylists, null, 4));
+            console.log(`Playlists saved to ${filename}`);
+            console.log()
+        }
     }
 
     if (!CACHE_ENABLED) {

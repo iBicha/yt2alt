@@ -2,16 +2,10 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "type": "node",
+            "command": "npm start",
+            "name": "npm start",
             "request": "launch",
-            "name": "Launch Program",
-            "skipFiles": [
-                "<node_internals>/**"
-            ],
-            "program": "${workspaceFolder}/src/cli.js",
-            "outFiles": [
-                "${workspaceFolder}/**/*.js"
-            ]
-        }
+            "type": "node-terminal"
+        },
     ]
 }
