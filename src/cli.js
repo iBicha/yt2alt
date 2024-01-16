@@ -9,6 +9,7 @@ import input from '@inquirer/input';
 import clipboard from 'clipboardy';
 import open from 'open';
 import { Piped } from "./piped.js";
+import { NewPipe } from "./newpipe.js";
 
 const CACHE_ENABLED = false;
 const DISABLE_WARNINGS = true;
@@ -101,6 +102,7 @@ console.warn = (...args) => {
             { name: 'Invidious (API import)', value: 'invidious_api' },
             { name: 'Invidious (save to file)', value: 'invidious_file' },
             { name: 'Piped (save to file)', value: 'piped_file' },
+            { name: 'NewPipe (Subscriptions only) (save to file)', value: 'newpipe_subs_file' },
         ],
     });
 
@@ -262,6 +264,41 @@ console.warn = (...args) => {
             const pipedPlaylists = Piped.profileToPipedPlaylists(profile);
             writeFileSync(filename, JSON.stringify(pipedPlaylists, null, 4));
             console.log(`Playlists saved to ${filename}`);
+            console.log()
+        }
+    } else if (exportChoice === 'newpipe_subs_file') {
+        console.log("Note: Only subscriptions will be exported for NewPipe.")
+        console.log()
+
+        if(fields.channels) {
+            let filename = ''
+            let validFilename = false;
+            while (!validFilename) {
+                filename = await input({
+                    message: 'Enter file name',
+                    default: 'subscriptions.json',
+                    validate: (value) => {
+                        if (/^[\w\-. ]+$/.test(value) === false) {
+                            return 'Please enter a valid file name';
+                        }
+                        return true;
+                    },
+                });
+                validFilename = true;
+    
+                if (existsSync(filename)) {
+                    const overwrite = await confirm({ message: 'File already exists. Overwrite?' });
+                    if (!overwrite) {
+                        validFilename = false;
+                        continue;
+                    }
+                }
+            }
+            console.log()
+    
+            const newPipeSubscriptions = NewPipe.profileToNewPipeSubscriptions(profile);
+            writeFileSync(filename, JSON.stringify(newPipeSubscriptions, null, 4));
+            console.log(`Subscriptions saved to ${filename}`);
             console.log()
         }
     }

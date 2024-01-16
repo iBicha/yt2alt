@@ -1,4 +1,6 @@
 export class Piped {
+    
+    // Note: Piped and NewPipe share the same subscriptions format
     static profileToPipedSubscriptions(profile) {
         if (!profile.channels) {
             return undefined;
