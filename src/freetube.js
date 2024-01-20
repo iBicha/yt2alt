@@ -9,7 +9,7 @@ export class FreeTube {
         return {
             _id: "allChannels",
             name: "All Channels",
-            bgColor: "#BD93F9",
+            bgColor: "#FF5555", //DraculaRed
             textColor: "#000000",
             subscriptions: profile.channels.map(channel => {
                 return {
