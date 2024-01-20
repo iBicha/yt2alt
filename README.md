@@ -26,6 +26,7 @@ Writes to
 - [Invidious](https://github.com/iv-org/invidious) (save to file)
 - [Piped](https://github.com/TeamPiped/Piped) (save to file)
 - [NewPipe](https://github.com/TeamNewPipe/NewPipe) (Subscriptions only) (save to file)
+- [FreeTube](https://github.com/FreeTubeApp/FreeTube) (Subscriptions and History only) (save to file)
 
 ## Disclaimer
 

@@ -3,7 +3,9 @@ import confirm from '@inquirer/confirm';
 import input from '@inquirer/input';
 
 export class Interactive {
-    static async getSavePath(defaultPath) {
+    static async getSavePath(defaultPath, opts) {
+        const extension = opts.extension;
+        const errorMessage = opts.errorMessage || 'Please enter a valid file name';
         let filename = ''
         let validFilename = false;
         while (!validFilename) {
@@ -12,7 +14,10 @@ export class Interactive {
                 default: defaultPath,
                 validate: (value) => {
                     if (/^[\w\-. ]+$/.test(value) === false) {
-                        return 'Please enter a valid file name';
+                        return errorMessage;
+                    }
+                    if (extension && !value.endsWith(extension)) {
+                        return `File name must end with ${extension}`;
                     }
                     return true;
                 },

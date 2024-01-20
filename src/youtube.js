@@ -82,23 +82,16 @@ export class Youtube {
 
     async getChannels() {
         await this.createSession();
-
         const feed = await this.innertube.getChannelsFeed();
         const channels = feed.channels.map(channel => {
-            return {
-                id: channel.id,
-                name: channel.author.name
-            }
+            return this.toChannel(channel);
         });
 
         while (feed.has_continuation) {
             try {
                 feed = await feed.getContinuation();
                 channels.push(...feed.channels.map(channel => {
-                    return {
-                        id: channel.id,
-                        name: channel.author.name
-                    }
+                    return this.toChannel(channel);
                 }));
             } catch (error) {
                 console.error(error);
@@ -162,7 +155,7 @@ export class Youtube {
         const contents = await playlistsSection.contents;
         return contents
             .filter(content => content.type === 'Playlist' || content.type === 'GridPlaylist')
-            .map(playlist => ({ id: playlist.id, title: playlist.title.text }));
+            .map(playlist => { return this.toPlaylist(playlist); });
     }
 
     async getPlaylistWithVideos(playlistId, limit = PLAYLIST_LIMIT) {
@@ -170,12 +163,9 @@ export class Youtube {
 
         let playlist = await this.innertube.getPlaylist(playlistId);
 
-        return {
-            title: playlist.info.title,
-            description: playlist.info.description,
-            privacy: playlist.info.privacy,
-            videos: await this.getFeedVideosWithLimit(playlist, limit),
-        };
+        const videos = await this.getFeedVideosWithLimit(playlist, limit);
+
+        return this.toPlaylistWithVideos(playlist, videos);
     }
 
     async getFeedVideosWithLimit(feed, limit = PLAYLIST_LIMIT) {
@@ -192,7 +182,52 @@ export class Youtube {
                 break;
             }
         }
-        return videos.slice(0, limit).map(video => video.id);
+
+        return videos.slice(0, limit)
+            .map(video => this.toVideo(video));
+    }
+
+    toVideo(video) {
+        return {
+            id: video.id,
+            title: video.title.text,
+            author: video.author?.name || "",
+            authorId: video.author?.id || "",
+            published: video.published?.text || "", //? undefined?
+            description: video.description,
+            viewCount: video.view_count?.text || "", // '1,926,729 views'
+            lengthSeconds: video.duration?.seconds || 0,
+            isLive: !!video.is_live,
+        }
+    }
+
+    toChannel(channel) {
+        let thumbnail = channel.author.best_thumbnail.url;
+        if (thumbnail && thumbnail.startsWith('//')) {
+            thumbnail = `https:${thumbnail}`;
+        }
+        return {
+            id: channel.id,
+            name: channel.author.name,
+            thumbnail: thumbnail,
+        }
+    }
+
+    toPlaylist(playlist) {
+        return { 
+            id: playlist.id, 
+            title: playlist.title.text 
+        }
+    }
+
+    toPlaylistWithVideos(playlist, videos) {
+        return {
+            id: playlist.id,
+            title: playlist.info.title,
+            description: playlist.info.description,
+            privacy: playlist.info.privacy,
+            videos: videos,
+        };
     }
 }
 
@@ -276,6 +311,7 @@ export class YoutubeInteractive {
                 { name: 'Invidious (save to file)', value: 'invidious_file' },
                 { name: 'Piped (save to file)', value: 'piped_file' },
                 { name: 'NewPipe (Subscriptions only) (save to file)', value: 'newpipe_subs_file' },
+                { name: 'FreeTube (Subscriptions and History only) (save to file)', value: 'freetube_file' },
             ],
         });
         console.log();

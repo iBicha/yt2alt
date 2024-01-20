@@ -1,3 +1,5 @@
+import { writeFileSync } from "fs";
+
 export class NewPipe {
 
     // Note: Piped and NewPipe share the same subscriptions format

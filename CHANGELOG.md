@@ -5,11 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Suppoer for FreeTube (Subscriptions and History only)
+
 ## [0.3.3] - 2024-01-16
 
 ### Added
 
-- Support for NewPipe (subscriptions only)
+- Support for NewPipe (Subscriptions only)
 
 ## [0.3.0] - 2024-01-16
 
@@ -32,3 +38,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.1.1] - 2023-12-23
 
 Initial version
+
+<!-- markdownlint-configure-file {"MD024": { "siblings_only": true } } -->
