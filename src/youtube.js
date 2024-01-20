@@ -1,6 +1,13 @@
 import { Innertube, UniversalCache } from 'youtubei.js';
+import checkbox, { Separator } from '@inquirer/checkbox';
+import { select } from '@inquirer/prompts';
+import confirm from '@inquirer/confirm';
+import open from 'open';
+import clipboard from 'clipboardy';
 
-export default class Youtube {
+const PLAYLIST_LIMIT = 100;
+
+export class Youtube {
 
     async getProfile(fields) {
         const profile = {}
@@ -67,6 +74,12 @@ export default class Youtube {
         return this.innertube;
     }
 
+    async logout() {
+        console.log('Signing out from Youtube...');
+        console.log()
+        await this.innertube.session.signOut();
+    }
+
     async getChannels() {
         await this.createSession();
 
@@ -104,14 +117,14 @@ export default class Youtube {
         return this.library;
     }
 
-    async getWatchHistory(limit = 100) {
+    async getWatchHistory(limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
         let history = await this.innertube.getHistory();
         return this.getFeedVideosWithLimit(history, limit);
     }
 
-    async getLikedVideos(limit = 100) {
+    async getLikedVideos(limit = PLAYLIST_LIMIT) {
         const library = await this.getLibrary();
         const likedVideos = library.liked_videos;
 
@@ -119,7 +132,7 @@ export default class Youtube {
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
-    async getWatchLater(limit = 100) {
+    async getWatchLater(limit = PLAYLIST_LIMIT) {
         const library = await this.innertube.getLibrary();
         const watchLater = library.watch_later;
 
@@ -127,14 +140,14 @@ export default class Youtube {
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
-    async getHomeFeed(limit = 100) {
+    async getHomeFeed(limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
         const feed = await this.innertube.getHomeFeed();
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
-    async getPlaylistsWithVideos(limit = 100) {
+    async getPlaylistsWithVideos(limit = PLAYLIST_LIMIT) {
         const playlists = [];
         const libraryPlaylists = await this.getLibraryPlaylists();
         for (const playlist of libraryPlaylists) {
@@ -152,7 +165,7 @@ export default class Youtube {
             .map(playlist => ({ id: playlist.id, title: playlist.title.text }));
     }
 
-    async getPlaylistWithVideos(playlistId, limit = 100) {
+    async getPlaylistWithVideos(playlistId, limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
         let playlist = await this.innertube.getPlaylist(playlistId);
@@ -165,7 +178,7 @@ export default class Youtube {
         };
     }
 
-    async getFeedVideosWithLimit(feed, limit = 100) {
+    async getFeedVideosWithLimit(feed, limit = PLAYLIST_LIMIT) {
         const videos = [];
         while (limit === -1 || videos.length < limit) {
             try {
@@ -180,5 +193,93 @@ export default class Youtube {
             }
         }
         return videos.slice(0, limit).map(video => video.id);
+    }
+}
+
+export class YoutubeInteractive {
+    static async loginDisclaimer() {
+        const initialAnswer = await confirm({ message: 'This tool will log into your Youtube account, read your data, and allow\nyou to import it to other platforms, such as Invidious. Continue?' });
+        console.log()
+        return initialAnswer;
+    }
+
+    static async login(youtube, cacheEnabled) {
+        const innertube = await youtube.createSession(cacheEnabled);
+
+        innertube.session.on('auth-pending', async (data) => {
+            console.log(`Go to ${data.verification_url} in your browser and enter code ${data.user_code} to authenticate.`);
+            const openBrowserAnswer = await confirm({ message: 'Copy code to clipboard and open url in the browser now?' });
+            if (openBrowserAnswer) {
+                clipboard.writeSync(data.user_code);
+                open(data.verification_url);
+            }
+        });
+
+        innertube.session.on('update-credentials', async ({ credentials }) => {
+            console.log('Youtube credentials updated.');
+            if (cacheEnabled) {
+                await innertube.session.oauth.cacheCredentials();
+            }
+        });
+
+        await innertube.session.signIn();
+        if (cacheEnabled) {
+            await innertube.session.oauth.cacheCredentials();
+        }
+
+        console.log()
+    }
+
+    static async chooseProfileFields(libraryPlaylists) {
+        const choices = [
+            { name: 'Subscriptions', value: 'channels', checked: true },
+            { name: 'Watch history', value: 'history', checked: true },
+            { name: 'Liked videos', value: 'likedVideos', checked: true },
+            { name: 'Watch later', value: 'watchLater', checked: true },
+            { name: 'Recommended videos', value: 'homeFeed', checked: true },
+        ]
+
+        if (libraryPlaylists.length > 0) {
+            choices.push(new Separator('-- Playlists --'));
+            for (const playlist of libraryPlaylists) {
+                choices.push({ name: playlist.title, value: { playlistId: playlist.id }, checked: true });
+            }
+        }
+
+        const importChoices = await checkbox({
+            message: 'Select the items to import from Youtube',
+            choices: choices,
+            pageSize: 15,
+            loop: false,
+            required: true,
+        });
+        console.log()
+
+        const fields = {};
+        for (const choice of importChoices) {
+            if (typeof choice === 'string') {
+                fields[choice] = true;
+            } else {
+                fields.playlists = fields.playlists || {};
+                fields.playlists[choice.playlistId] = true;
+            }
+        }
+
+        return fields;
+    }
+
+    static async chooseExportPlatform() {
+        const exportChoice = await select({
+            message: 'Select platform to export to',
+            choices: [
+                { name: 'Invidious (API import)', value: 'invidious_api' },
+                { name: 'Invidious (save to file)', value: 'invidious_file' },
+                { name: 'Piped (save to file)', value: 'piped_file' },
+                { name: 'NewPipe (Subscriptions only) (save to file)', value: 'newpipe_subs_file' },
+            ],
+        });
+        console.log();
+
+        return exportChoice;
     }
 }

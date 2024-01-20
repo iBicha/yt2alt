@@ -1,4 +1,7 @@
 import express from 'express'
+import confirm from '@inquirer/confirm';
+import input from '@inquirer/input';
+import open from 'open';
 
 const PLAYLIST_DESCRIPTION = '[Automatically imported from Youtube using yt2alt]';
 
@@ -61,6 +64,17 @@ export class Invidious {
         }
 
         return invidiousProfile;
+    }
+
+    static async importProfileChunked(invidiousServer, accessToken, invidiousProfile) {
+        const profileChunks = Invidious.invidiousProfileToChunks(invidiousProfile);
+        for (let i = 0; i < profileChunks.length; i++) {
+            const chunk = profileChunks[i];
+            console.log(`Importing profile to Invidious (${chunk.name}) [${i + 1} of ${profileChunks.length}]...`);
+            await Invidious.importProfile(invidiousServer, accessToken, chunk.payload);
+        }
+
+        console.log()
     }
 
     static async importProfile(invidiousInstance, accessToken, invidiousProfile) {
@@ -197,5 +211,56 @@ export class InvidiousCallbackServer {
         }
 
         return this.tokenPromise
+    }
+}
+
+export class InvidiousInteractive {
+
+    static async getInvidiousInstance() {
+        let invidiousServer = '';
+        let validServer = false;
+        while (!validServer) {
+            invidiousServer = await input({
+                message: 'Enter Invidious server URL',
+                default: '',
+                validate: (value) => {
+                    if (/^https?:\/\/.*$/.test(value) === false) {
+                        return 'Please enter a valid url';
+                    }
+                    return true;
+                },
+            });
+
+            if (invidiousServer.endsWith('/')) {
+                invidiousServer = invidiousServer.slice(0, -1);
+            }
+
+            console.log('Checking server...');
+            validServer = await Invidious.pingServer(invidiousServer);
+            if (!validServer) {
+                const tryAgain = await confirm({ message: 'Failed to communicate with Invidious server. Try again?' });
+                if (!tryAgain) {
+                    return;
+                }
+            }
+        }
+
+        console.log()
+        return invidiousServer;
+    }
+
+    static async loginToInvidious(invidiousServer) {
+        const callbackServer = new InvidiousCallbackServer(invidiousServer);
+        await callbackServer.startServer();
+
+        console.log(`Go to ${callbackServer.authLink} in your browser and authenticate.`);
+        const openBrowserAnswer = await confirm({ message: 'Open url in the browser now?' });
+        if (openBrowserAnswer) {
+            open(callbackServer.authLink);
+        }
+        console.log()
+
+        const accessToken = await callbackServer.getAccessToken();
+        return accessToken;
     }
 }
