@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 import { Invidious, InvidiousInteractive } from "./invidious.js";
 import { Youtube, YoutubeInteractive } from "./youtube.js";
-import { writeFileSync } from "fs";
 import { Piped } from "./piped.js";
 import { NewPipe } from "./newpipe.js";
 import { Utils } from "./utils.js";
@@ -46,7 +45,7 @@ const CACHE_ENABLED = false;
     } else if (exportChoice === 'invidious_file') {
         const filename = await Interactive.getSavePath('invidious-profile.json');
         const invidiousProfile = Invidious.profileToInvidiousProfile(profile);
-        writeFileSync(filename, JSON.stringify(invidiousProfile, null, 4));
+        Invidious.writeInvidiousProfileToFile(invidiousProfile, filename);
         console.log(`Profile saved to ${filename}`);
         console.log()
     } else if (exportChoice === 'piped_file') {
@@ -58,7 +57,7 @@ const CACHE_ENABLED = false;
         if (fields.channels) {
             const filename = await Interactive.getSavePath('subscriptions.json');
             const pipedSubscriptions = Piped.profileToPipedSubscriptions(profile);
-            writeFileSync(filename, JSON.stringify(pipedSubscriptions, null, 4));
+            Piped.writeSubscriptionsToFile(pipedSubscriptions, filename);
             console.log(`Subscriptions saved to ${filename}`);
             console.log()
         }
@@ -66,7 +65,7 @@ const CACHE_ENABLED = false;
         if (fields.likedVideos || fields.watchLater || fields.homeFeed || fields.playlists) {
             const filename = await Interactive.getSavePath('playlists.json');
             const pipedPlaylists = Piped.profileToPipedPlaylists(profile);
-            writeFileSync(filename, JSON.stringify(pipedPlaylists, null, 4));
+            Piped.writePlaylistsToFile(pipedPlaylists, filename);
             console.log(`Playlists saved to ${filename}`);
             console.log()
         }
@@ -77,7 +76,7 @@ const CACHE_ENABLED = false;
         if (fields.channels) {
             const filename = await Interactive.getSavePath('subscriptions.json');
             const newPipeSubscriptions = NewPipe.profileToNewPipeSubscriptions(profile);
-            writeFileSync(filename, JSON.stringify(newPipeSubscriptions, null, 4));
+            NewPipe.writeSubscriptionsToFile(newPipeSubscriptions, filename);
             console.log(`Subscriptions saved to ${filename}`);
             console.log()
         }

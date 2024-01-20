@@ -1,3 +1,5 @@
+import { writeFileSync } from "fs";
+
 export class Piped {
     
     // Note: Piped and NewPipe share the same subscriptions format
@@ -81,5 +83,13 @@ export class Piped {
             default:
                 return 'private';
         }
+    }
+
+    static writeSubscriptionsToFile(pipedSubscriptions, filename) {
+        writeFileSync(filename, JSON.stringify(pipedSubscriptions, null, 4));
+    }
+
+    static writePlaylistsToFile(pipedPlaylists, filename) {
+        writeFileSync(filename, JSON.stringify(pipedPlaylists, null, 4));
     }
 }

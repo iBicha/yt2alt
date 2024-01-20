@@ -19,4 +19,7 @@ export class NewPipe {
         };
     }
 
+    static writeSubscriptionsToFile(newPipeSubscriptions, filename) {
+        writeFileSync(filename, JSON.stringify(newPipeSubscriptions, null, 4));
+    }
 }

@@ -1,3 +1,4 @@
+import { writeFileSync } from "fs";
 import express from 'express'
 import confirm from '@inquirer/confirm';
 import input from '@inquirer/input';
@@ -162,6 +163,10 @@ export class Invidious {
             method: "POST",
             body: accessToken
         })
+    }
+
+    static writeInvidiousProfileToFile(invidiousProfile, filename) {
+        writeFileSync(filename, JSON.stringify(invidiousProfile, null, 4));    
     }
 }
 
