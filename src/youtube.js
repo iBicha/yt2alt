@@ -312,6 +312,7 @@ export class YoutubeInteractive {
                 { name: 'Piped (save to file)', value: 'piped_file' },
                 { name: 'NewPipe (Subscriptions only) (save to file)', value: 'newpipe_subs_file' },
                 { name: 'FreeTube (Subscriptions and History only) (save to file)', value: 'freetube_file' },
+                { name: 'ViewTube (Subscriptions only) (save to file)', value: 'viewtube_file' },
             ],
         });
         console.log();

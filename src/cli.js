@@ -6,6 +6,7 @@ import { NewPipe } from "./newpipe.js";
 import { Utils } from "./utils.js";
 import { Interactive } from "./interactive.js";
 import { FreeTube } from "./freetube.js";
+import { ViewTube } from "./viewtube.js";
 
 const CACHE_ENABLED = false;
 
@@ -98,6 +99,17 @@ const CACHE_ENABLED = false;
             const freetubeHistory = FreeTube.profileToFreeTubeHistory(profile);
             FreeTube.writeHistoryToFile(freetubeHistory, filename);
             console.log(`History saved to ${filename}`);
+            console.log()
+        }
+    } else if (exportChoice === 'viewtube_file') {
+        console.log("Note: Only subscriptions will be exported for ViewTube.")
+        console.log()
+
+        if (fields.channels) {
+            const filename = await Interactive.getSavePath('subscriptions.json', { extension: '.json' });
+            const viewtubeSubscriptions = ViewTube.profileToViewTubeSubscriptions(profile);
+            ViewTube.writeSubscriptionsToFile(viewtubeSubscriptions, filename);
+            console.log(`Subscriptions saved to ${filename}`);
             console.log()
         }
     }
