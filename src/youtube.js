@@ -233,7 +233,10 @@ export class Youtube {
 
 export class YoutubeInteractive {
     static async loginDisclaimer() {
-        const initialAnswer = await confirm({ message: 'This tool will log into your Youtube account, read your data, and allow\nyou to import it to other platforms, such as Invidious. Continue?' });
+        const initialAnswer = await confirm({ message: `This tool will log into your Youtube account, read your data, and allow
+you to import it to other platforms.
+You will get to choose which data to import and where to export it.
+Continue?` });
         console.log()
         return initialAnswer;
     }
