@@ -5,6 +5,7 @@ import { Piped } from "./piped.js";
 import { NewPipe } from "./newpipe.js";
 import { Utils } from "./utils.js";
 import { Interactive } from "./interactive.js";
+import { FreeTube } from "./freetube.js";
 
 const CACHE_ENABLED = false;
 
@@ -43,7 +44,7 @@ const CACHE_ENABLED = false;
         console.log()
         await Invidious.deleteAccessToken(invidiousServer, accessToken);
     } else if (exportChoice === 'invidious_file') {
-        const filename = await Interactive.getSavePath('invidious-profile.json');
+        const filename = await Interactive.getSavePath('invidious-profile.json', { extension: '.json' });
         const invidiousProfile = Invidious.profileToInvidiousProfile(profile);
         Invidious.writeInvidiousProfileToFile(invidiousProfile, filename);
         console.log(`Profile saved to ${filename}`);
@@ -55,7 +56,7 @@ const CACHE_ENABLED = false;
         }
 
         if (fields.channels) {
-            const filename = await Interactive.getSavePath('subscriptions.json');
+            const filename = await Interactive.getSavePath('subscriptions.json', { extension: '.json' });
             const pipedSubscriptions = Piped.profileToPipedSubscriptions(profile);
             Piped.writeSubscriptionsToFile(pipedSubscriptions, filename);
             console.log(`Subscriptions saved to ${filename}`);
@@ -63,7 +64,7 @@ const CACHE_ENABLED = false;
         }
 
         if (fields.likedVideos || fields.watchLater || fields.homeFeed || fields.playlists) {
-            const filename = await Interactive.getSavePath('playlists.json');
+            const filename = await Interactive.getSavePath('playlists.json', { extension: '.json' });
             const pipedPlaylists = Piped.profileToPipedPlaylists(profile);
             Piped.writePlaylistsToFile(pipedPlaylists, filename);
             console.log(`Playlists saved to ${filename}`);
@@ -74,10 +75,29 @@ const CACHE_ENABLED = false;
         console.log()
 
         if (fields.channels) {
-            const filename = await Interactive.getSavePath('subscriptions.json');
+            const filename = await Interactive.getSavePath('subscriptions.json', { extension: '.json' });
             const newPipeSubscriptions = NewPipe.profileToNewPipeSubscriptions(profile);
             NewPipe.writeSubscriptionsToFile(newPipeSubscriptions, filename);
             console.log(`Subscriptions saved to ${filename}`);
+            console.log()
+        }
+    } else if (exportChoice === 'freetube_file') {
+        console.log("Note: Only subscriptions and watch history will be exported for FreeTube.")
+        console.log()
+
+        if (fields.channels) {
+            const filename = await Interactive.getSavePath('subscriptions.db', { extension: '.db' });
+            const freetubeSubscriptions = FreeTube.profileToFreeTubeSubscriptions(profile);
+            FreeTube.writeSubscriptionsToFile(freetubeSubscriptions, filename);
+            console.log(`Subscriptions saved to ${filename}`);
+            console.log()
+        }
+
+        if (fields.history) {
+            const filename = await Interactive.getSavePath('history.db', { extension: '.db' });
+            const freetubeHistory = FreeTube.profileToFreeTubeHistory(profile);
+            FreeTube.writeHistoryToFile(freetubeHistory, filename);
+            console.log(`History saved to ${filename}`);
             console.log()
         }
     }
