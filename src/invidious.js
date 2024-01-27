@@ -18,7 +18,7 @@ export class Invidious {
         }
 
         if (profile.history) {
-            invidiousProfile.watch_history = profile.history;
+            invidiousProfile.watch_history = profile.history.map(video => video.id);
         }
 
         // There's no liked videos, watch later, or recommended feed in Invidious, we import them as a playlists
@@ -28,7 +28,7 @@ export class Invidious {
                 title: 'Liked videos',
                 description: PLAYLIST_DESCRIPTION,
                 privacy: 'private',
-                videos: profile.likedVideos,
+                videos: profile.likedVideos.map(video => video.id),
             });
         }
 
@@ -38,7 +38,7 @@ export class Invidious {
                 title: 'Watch later',
                 description: PLAYLIST_DESCRIPTION,
                 privacy: 'private',
-                videos: profile.watchLater,
+                videos: profile.watchLater.map(video => video.id),
             });
         }
 
@@ -48,7 +48,7 @@ export class Invidious {
                 title: 'Recommended',
                 description: PLAYLIST_DESCRIPTION,
                 privacy: 'private',
-                videos: profile.homeFeed,
+                videos: profile.homeFeed.map(video => video.id),
             });
         }
 
@@ -59,7 +59,7 @@ export class Invidious {
                     title: playlist.title,
                     description: PLAYLIST_DESCRIPTION + (playlist.description ? `\n${playlist.description}` : ''),
                     privacy: Invidious.privacyToInvidiousPrivacy(playlist.privacy),
-                    videos: playlist.videos,
+                    videos: playlist.videos.map(video => video.id),
                 });
             }
         }

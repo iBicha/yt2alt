@@ -29,7 +29,7 @@ export class Piped {
                 name: 'Liked videos',
                 type: "playlist",
                 visibility: 'private',
-                videos: profile.likedVideos.map(id => `https://www.youtube.com/watch?v=${id}`),
+                videos: profile.likedVideos.map(video => `https://www.youtube.com/watch?v=${video.id}`),
             });
         }
 
@@ -38,7 +38,7 @@ export class Piped {
                 name: 'Watch later',
                 type: "playlist",
                 visibility: 'private',
-                videos: profile.watchLater.map(id => `https://www.youtube.com/watch?v=${id}`),
+                videos: profile.watchLater.map(video => `https://www.youtube.com/watch?v=${video.id}`),
             });
         }
 
@@ -47,7 +47,7 @@ export class Piped {
                 name: 'Recommended',
                 type: "playlist",
                 visibility: 'private',
-                videos: profile.homeFeed.map(id => `https://www.youtube.com/watch?v=${id}`),
+                videos: profile.homeFeed.map(video => `https://www.youtube.com/watch?v=${video.id}`),
             });
         }
 
@@ -57,7 +57,7 @@ export class Piped {
                     name: playlist.title,
                     type: "playlist",
                     visibility: Piped.privacyToPipedVisibility(playlist.privacy),
-                    videos: playlist.videos.map(id => `https://www.youtube.com/watch?v=${id}`),
+                    videos: playlist.videos.map(video => `https://www.youtube.com/watch?v=${video.id}`),
                 });
             }
         }
