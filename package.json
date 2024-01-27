@@ -20,6 +20,6 @@
     "clipboardy": "^4.0.0",
     "express": "^4.18.2",
     "open": "^10.0.3",
-    "youtubei.js": "^8.2.0"
+    "youtubei.js": "^9.0.1"
   }
 }
