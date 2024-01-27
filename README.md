@@ -9,7 +9,7 @@ Uses [YouTube.js](https://github.com/LuanRT/YouTube.js) for extraction.
 npx yt2alt
 ```
 
-![demo](demo.gif)
+![demo](https://raw.githubusercontent.com/iBicha/yt2alt/main/demo.gif)
 
 ## Features
 
