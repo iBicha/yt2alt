@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import { Invidious, InvidiousInteractive } from "./invidious.js";
-import { Youtube, YoutubeInteractive } from "./youtube.js";
+import { YouTube, YouTubeInteractive } from "./youtube.js";
 import { Piped } from "./piped.js";
 import { NewPipe } from "./newpipe.js";
 import { Utils } from "./utils.js";
@@ -13,22 +13,22 @@ const CACHE_ENABLED = false;
 (async () => {
     Utils.printPackageVersion();
 
-    const initialAnswer = await YoutubeInteractive.loginDisclaimer();
+    const initialAnswer = await YouTubeInteractive.loginDisclaimer();
     if (!initialAnswer) {
         return;
     }
 
-    const youtube = new Youtube();
-    await YoutubeInteractive.login(youtube, CACHE_ENABLED);
+    const youtube = new YouTube();
+    await YouTubeInteractive.login(youtube, CACHE_ENABLED);
 
     console.log('Reading library...');
     const libraryPlaylists = await youtube.getLibraryPlaylists()
 
-    const fields = await YoutubeInteractive.chooseProfileFields(libraryPlaylists);
+    const fields = await YouTubeInteractive.chooseProfileFields(libraryPlaylists);
 
     const profile = await youtube.getProfile(fields);
 
-    const exportChoice = await YoutubeInteractive.chooseExportPlatform();
+    const exportChoice = await YouTubeInteractive.chooseExportPlatform();
 
     if (exportChoice === 'invidious_api') {
         const invidiousServer = await InvidiousInteractive.getInvidiousInstance();

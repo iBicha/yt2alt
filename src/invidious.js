@@ -4,7 +4,7 @@ import confirm from '@inquirer/confirm';
 import input from '@inquirer/input';
 import open from 'open';
 
-const PLAYLIST_DESCRIPTION = '[Automatically imported from Youtube using yt2alt]';
+const PLAYLIST_DESCRIPTION = '[Automatically imported from YouTube using yt2alt]';
 
 const INVIDIOUS_SCOPES = "POST:tokens/unregister,POST:import/invidious"
 

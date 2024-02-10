@@ -7,7 +7,7 @@ import clipboard from 'clipboardy';
 
 const PLAYLIST_LIMIT = 100;
 
-export class Youtube {
+export class YouTube {
 
     async getProfile(fields) {
         const profile = {}
@@ -75,7 +75,7 @@ export class Youtube {
     }
 
     async logout() {
-        console.log('Signing out from Youtube...');
+        console.log('Signing out from YouTube...');
         console.log()
         await this.innertube.session.signOut();
     }
@@ -231,9 +231,9 @@ export class Youtube {
     }
 }
 
-export class YoutubeInteractive {
+export class YouTubeInteractive {
     static async loginDisclaimer() {
-        const initialAnswer = await confirm({ message: `This tool will log into your Youtube account, read your data, and allow
+        const initialAnswer = await confirm({ message: `This tool will log into your YouTube account, read your data, and allow
 you to import it to other platforms.
 You will get to choose which data to import and where to export it.
 Continue?` });
@@ -254,7 +254,7 @@ Continue?` });
         });
 
         innertube.session.on('update-credentials', async ({ credentials }) => {
-            console.log('Youtube credentials updated.');
+            console.log('YouTube credentials updated.');
             if (cacheEnabled) {
                 await innertube.session.oauth.cacheCredentials();
             }
@@ -285,7 +285,7 @@ Continue?` });
         }
 
         const importChoices = await checkbox({
-            message: 'Select the items to import from Youtube',
+            message: 'Select the items to import from YouTube',
             choices: choices,
             pageSize: 15,
             loop: false,

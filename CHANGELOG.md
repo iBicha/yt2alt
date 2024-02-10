@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Update Youtube.js, which fixes an issues with Playlists
+- Update YouTube.js, which fixes an issues with Playlists
 - Fix bug introduced in 0.4.0 in Invidious and Piped
 
 ## [0.4.0] - 2024-01-24
