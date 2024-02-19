@@ -1,5 +1,7 @@
 # yt2alt
 
+![NPM Version](https://img.shields.io/npm/v/yt2alt)
+
 yt2alt is a command line tool to export your profile from YouTube and import it to an alternative platform.
 Uses [YouTube.js](https://github.com/LuanRT/YouTube.js) for extraction.
 
