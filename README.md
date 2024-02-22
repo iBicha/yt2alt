@@ -1,6 +1,8 @@
 # yt2alt
 
-![NPM Version](https://img.shields.io/npm/v/yt2alt)
+<a href="https://www.npmjs.com/package/yt2alt">
+  <img alt="NPM Version" src="https://img.shields.io/npm/v/yt2alt"/>
+</a>
 
 yt2alt is a command line tool to export your profile from YouTube and import it to an alternative platform.
 Uses [YouTube.js](https://github.com/LuanRT/YouTube.js) for extraction.
