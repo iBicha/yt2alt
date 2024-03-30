@@ -13,12 +13,12 @@
   "author": "Brahim Hadriche",
   "license": "MIT",
   "dependencies": {
-    "@inquirer/checkbox": "^2.2.0",
-    "@inquirer/confirm": "^3.1.0",
-    "@inquirer/input": "^2.1.0",
-    "@inquirer/prompts": "^4.3.0",
+    "@inquirer/checkbox": "^2.2.1",
+    "@inquirer/confirm": "^3.1.1",
+    "@inquirer/input": "^2.1.1",
+    "@inquirer/prompts": "^4.3.1",
     "clipboardy": "^4.0.0",
-    "express": "^4.19.1",
+    "express": "^4.19.2",
     "open": "^10.1.0",
     "youtubei.js": "^9.1.0"
   }
