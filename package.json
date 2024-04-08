@@ -11,7 +11,7 @@
     "yt2alt": "./src/cli.js"
   },
   "author": "Brahim Hadriche",
-  "license": "MIT",
+  "license": "AGPL-3.0-only",
   "dependencies": {
     "@inquirer/checkbox": "^2.2.2",
     "@inquirer/confirm": "^3.1.2",
