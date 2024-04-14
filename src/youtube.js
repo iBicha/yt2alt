@@ -110,11 +110,13 @@ export class YouTube {
     }
 
     async getLikedVideos(limit = PLAYLIST_LIMIT) {
+        await this.createSession();
         const feed = await this.innertube.getPlaylist('VLLL');
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
     async getWatchLater(limit = PLAYLIST_LIMIT) {
+        await this.createSession();
         const feed = await this.innertube.getPlaylist('VLWL');
         return this.getFeedVideosWithLimit(feed, limit);
     }
@@ -136,6 +138,7 @@ export class YouTube {
     }
 
     async getLibraryPlaylists() {
+        await this.createSession();
         const response = await this.innertube.actions.execute(
            Endpoints.BrowseEndpoint.PATH, { ...Endpoints.BrowseEndpoint.build({ browse_id: 'FEplaylist_aggregation' }), parse: true }
         );
