@@ -1,4 +1,5 @@
 import { Innertube, UniversalCache } from 'youtubei.js';
+import { Endpoints, Mixins } from 'youtubei.js/agnostic';
 import checkbox, { Separator } from '@inquirer/checkbox';
 import { select } from '@inquirer/prompts';
 import confirm from '@inquirer/confirm';
@@ -100,16 +101,7 @@ export class YouTube {
         }
         return channels;
     }
-
-    async getLibrary() {
-        await this.createSession();
-
-        if (!this.library) {
-            this.library = await this.innertube.getLibrary();
-        }
-        return this.library;
-    }
-
+    
     async getWatchHistory(limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
@@ -118,18 +110,12 @@ export class YouTube {
     }
 
     async getLikedVideos(limit = PLAYLIST_LIMIT) {
-        const library = await this.getLibrary();
-        const likedVideos = library.liked_videos;
-
-        const feed = await likedVideos.getAll();
+        const feed = await this.innertube.getPlaylist('VLLL');
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
     async getWatchLater(limit = PLAYLIST_LIMIT) {
-        const library = await this.innertube.getLibrary();
-        const watchLater = library.watch_later;
-
-        const feed = await watchLater.getAll();
+        const feed = await this.innertube.getPlaylist('VLWL');
         return this.getFeedVideosWithLimit(feed, limit);
     }
 
@@ -150,12 +136,32 @@ export class YouTube {
     }
 
     async getLibraryPlaylists() {
-        const library = await this.getLibrary();
-        const playlistsSection = library.playlists_section;
-        const contents = await playlistsSection.contents;
-        return contents
-            .filter(content => content.type === 'Playlist' || content.type === 'GridPlaylist')
-            .map(playlist => { return this.toPlaylist(playlist); });
+        const response = await this.innertube.actions.execute(
+           Endpoints.BrowseEndpoint.PATH, { ...Endpoints.BrowseEndpoint.build({ browse_id: 'FEplaylist_aggregation' }), parse: true }
+        );
+
+        let feed = new Mixins.Feed(this.actions, response);
+
+        function getFeedPlaylists(feed, toPlaylist) {
+            return feed.playlists.map(playlist => {
+                return toPlaylist(playlist);
+            // filter out mix playlists, they are not viewable and will throw an error
+            }).filter(playlist => !playlist.id.startsWith('RD'));
+        }
+
+        const playlists = getFeedPlaylists(feed, this.toPlaylist);
+
+        while (feed.has_continuation) {
+            try {
+                feed = await feed.getContinuation();
+                playlists.push(...getFeedPlaylists(feed, this.toPlaylist));
+            } catch (error) {
+                console.error(error);
+                break;
+            }
+        }
+
+        return playlists;
     }
 
     async getPlaylistWithVideos(playlistId, limit = PLAYLIST_LIMIT) {
@@ -214,6 +220,14 @@ export class YouTube {
     }
 
     toPlaylist(playlist) {
+        // from FEplaylist_aggregation
+        if (playlist.type === 'LockupView' && playlist.content_type === 'PLAYLIST') {
+            return {
+                id: playlist.content_id,
+                title: playlist.metadata.title.text,
+            };
+        }
+
         return { 
             id: playlist.id, 
             title: playlist.title.text 
