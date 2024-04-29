@@ -1,5 +1,4 @@
 import { Innertube, UniversalCache } from 'youtubei.js';
-import { Endpoints, Mixins } from 'youtubei.js/agnostic';
 import checkbox, { Separator } from '@inquirer/checkbox';
 import { select } from '@inquirer/prompts';
 import confirm from '@inquirer/confirm';
@@ -15,32 +14,27 @@ export class YouTube {
 
         if (fields.channels) {
             console.log('Reading Subscriptions...');
-            const channels = await this.getChannels();
-            profile.channels = channels;
+            profile.channels = await this.getChannels();
         }
 
         if (fields.history) {
             console.log('Reading Watch history...');
-            const history = await this.getWatchHistory();
-            profile.history = history;
+            profile.history = await this.getWatchHistory();
         }
 
         if (fields.likedVideos) {
             console.log('Reading Liked videos...');
-            const likedVideos = await this.getLikedVideos();
-            profile.likedVideos = likedVideos;
+            profile.likedVideos = await this.getLikedVideos();
         }
 
         if (fields.watchLater) {
             console.log('Reading Watch later...');
-            const watchLater = await this.getWatchLater();
-            profile.watchLater = watchLater;
+            profile.watchLater = await this.getWatchLater();
         }
 
         if (fields.homeFeed) {
             console.log('Reading Recommended videos...');
-            const homeFeed = await this.getHomeFeed();
-            profile.homeFeed = homeFeed;
+            profile.homeFeed = await this.getHomeFeed();
         }
 
         if (fields.playlists) {
@@ -51,8 +45,8 @@ export class YouTube {
                 profile.playlists = [];
                 const libraryPlaylists = await this.getLibraryPlaylists();
                 for (const playlist of libraryPlaylists) {
-                    console.log(`Reading Playlist: ${playlist.title}`);
                     if (fields.playlists[playlist.id]) {
+                        console.log(`Reading Playlist: ${playlist.title}`);
                         profile.playlists.push(await this.getPlaylistWithVideos(playlist.id));
                     }
                 }
@@ -83,7 +77,7 @@ export class YouTube {
 
     async getChannels() {
         await this.createSession();
-        const feed = await this.innertube.getChannelsFeed();
+        let feed = await this.innertube.getChannelsFeed();
         const channels = feed.channels.map(channel => {
             return this.toChannel(channel);
         });
@@ -101,11 +95,11 @@ export class YouTube {
         }
         return channels;
     }
-    
+
     async getWatchHistory(limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
-        let history = await this.innertube.getHistory();
+        const history = await this.innertube.getHistory();
         return this.getFeedVideosWithLimit(history, limit);
     }
 
@@ -139,32 +133,10 @@ export class YouTube {
 
     async getLibraryPlaylists() {
         await this.createSession();
-        const response = await this.innertube.actions.execute(
-           Endpoints.BrowseEndpoint.PATH, { ...Endpoints.BrowseEndpoint.build({ browse_id: 'FEplaylist_aggregation' }), parse: true }
-        );
-
-        let feed = new Mixins.Feed(this.actions, response);
-
-        function getFeedPlaylists(feed, toPlaylist) {
-            return feed.playlists.map(playlist => {
-                return toPlaylist(playlist);
+        const playlists = await this.innertube.getPlaylists();
+        return playlists.map(playlist => this.toPlaylist(playlist))
             // filter out mix playlists, they are not viewable and will throw an error
-            }).filter(playlist => !playlist.id.startsWith('RD'));
-        }
-
-        const playlists = getFeedPlaylists(feed, this.toPlaylist);
-
-        while (feed.has_continuation) {
-            try {
-                feed = await feed.getContinuation();
-                playlists.push(...getFeedPlaylists(feed, this.toPlaylist));
-            } catch (error) {
-                console.error(error);
-                break;
-            }
-        }
-
-        return playlists;
+            .filter(playlist => !playlist.id.startsWith('RD'));
     }
 
     async getPlaylistWithVideos(playlistId, limit = PLAYLIST_LIMIT) {
@@ -231,9 +203,9 @@ export class YouTube {
             };
         }
 
-        return { 
-            id: playlist.id, 
-            title: playlist.title.text 
+        return {
+            id: playlist.id,
+            title: playlist.title.text
         }
     }
 
@@ -250,7 +222,8 @@ export class YouTube {
 
 export class YouTubeInteractive {
     static async loginDisclaimer() {
-        const initialAnswer = await confirm({ message: `This tool will log into your YouTube account, read your data, and allow
+        const initialAnswer = await confirm({
+            message: `This tool will log into your YouTube account, read your data, and allow
 you to import it to other platforms.
 You will get to choose which data to import and where to export it.
 Continue?` });

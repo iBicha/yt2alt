@@ -1,7 +1,7 @@
 {
   "name": "yt2alt",
   "type": "module",
-  "version": "0.4.6",
+  "version": "0.4.7",
   "description": "Export your data from YouTube and import it to an alternative platform",
   "scripts": {
     "start": "node ./src/cli.js",
@@ -20,6 +20,6 @@
     "clipboardy": "^4.0.0",
     "express": "^4.19.2",
     "open": "^10.1.0",
-    "youtubei.js": "^9.3.0"
+    "youtubei.js": "^9.4.0"
   }
 }
