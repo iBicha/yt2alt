@@ -24,24 +24,6 @@ export class Piped {
     static profileToPipedPlaylists(profile) {
         const playlists = [];
 
-        if (profile.likedVideos) {
-            playlists.push({
-                name: 'Liked videos',
-                type: "playlist",
-                visibility: 'private',
-                videos: profile.likedVideos.map(video => `https://www.youtube.com/watch?v=${video.id}`),
-            });
-        }
-
-        if (profile.watchLater) {
-            playlists.push({
-                name: 'Watch later',
-                type: "playlist",
-                visibility: 'private',
-                videos: profile.watchLater.map(video => `https://www.youtube.com/watch?v=${video.id}`),
-            });
-        }
-
         if (profile.homeFeed) {
             playlists.push({
                 name: 'Recommended',

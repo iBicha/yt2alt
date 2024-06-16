@@ -64,7 +64,7 @@ const CACHE_ENABLED = false;
             console.log()
         }
 
-        if (fields.likedVideos || fields.watchLater || fields.homeFeed || fields.playlists) {
+        if (fields.homeFeed || fields.playlists) {
             const filename = await Interactive.getSavePath('playlists.json', { extension: '.json' });
             const pipedPlaylists = Piped.profileToPipedPlaylists(profile);
             Piped.writePlaylistsToFile(pipedPlaylists, filename);
