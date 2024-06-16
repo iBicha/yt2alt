@@ -1,3 +1,5 @@
+<!-- markdownlint-disable MD033 -->
+
 # yt2alt
 
 <a href="https://www.npmjs.com/package/yt2alt">

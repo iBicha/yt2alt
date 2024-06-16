@@ -21,27 +21,7 @@ export class Invidious {
             invidiousProfile.watch_history = profile.history.map(video => video.id);
         }
 
-        // There's no liked videos, watch later, or recommended feed in Invidious, we import them as a playlists
-        if (profile.likedVideos) {
-            invidiousProfile.playlists = invidiousProfile.playlists || [];
-            invidiousProfile.playlists.push({
-                title: 'Liked videos',
-                description: PLAYLIST_DESCRIPTION,
-                privacy: 'private',
-                videos: profile.likedVideos.map(video => video.id),
-            });
-        }
-
-        if (profile.watchLater) {
-            invidiousProfile.playlists = invidiousProfile.playlists || [];
-            invidiousProfile.playlists.push({
-                title: 'Watch later',
-                description: PLAYLIST_DESCRIPTION,
-                privacy: 'private',
-                videos: profile.watchLater.map(video => video.id),
-            });
-        }
-
+        // There's no recommended feed in Invidious, we import it as a playlist
         if (profile.homeFeed) {
             invidiousProfile.playlists = invidiousProfile.playlists || [];
             invidiousProfile.playlists.push({

@@ -22,16 +22,6 @@ export class YouTube {
             profile.history = await this.getWatchHistory();
         }
 
-        if (fields.likedVideos) {
-            console.log('Reading Liked videos...');
-            profile.likedVideos = await this.getLikedVideos();
-        }
-
-        if (fields.watchLater) {
-            console.log('Reading Watch later...');
-            profile.watchLater = await this.getWatchLater();
-        }
-
         if (fields.homeFeed) {
             console.log('Reading Recommended videos...');
             profile.homeFeed = await this.getHomeFeed();
@@ -103,18 +93,6 @@ export class YouTube {
         return this.getFeedVideosWithLimit(history, limit);
     }
 
-    async getLikedVideos(limit = PLAYLIST_LIMIT) {
-        await this.createSession();
-        const feed = await this.innertube.getPlaylist('VLLL');
-        return this.getFeedVideosWithLimit(feed, limit);
-    }
-
-    async getWatchLater(limit = PLAYLIST_LIMIT) {
-        await this.createSession();
-        const feed = await this.innertube.getPlaylist('VLWL');
-        return this.getFeedVideosWithLimit(feed, limit);
-    }
-
     async getHomeFeed(limit = PLAYLIST_LIMIT) {
         await this.createSession();
 
@@ -133,7 +111,20 @@ export class YouTube {
 
     async getLibraryPlaylists() {
         await this.createSession();
-        const playlists = await this.innertube.getPlaylists();
+        const feed = await this.innertube.getPlaylists();
+
+        let playlists = feed.playlists;
+
+        while (feed.has_continuation) {
+            try {
+                feed = await feed.getContinuation();
+                playlists.push(...feed.playlists);
+            } catch (error) {
+                console.error(error);
+                break;
+            }
+        }
+
         return playlists.map(playlist => this.toPlaylist(playlist))
             // filter out mix playlists, they are not viewable and will throw an error
             .filter(playlist => !playlist.id.startsWith('RD'));
@@ -262,8 +253,6 @@ Continue?` });
         const choices = [
             { name: 'Subscriptions', value: 'channels', checked: true },
             { name: 'Watch history', value: 'history', checked: true },
-            { name: 'Liked videos', value: 'likedVideos', checked: true },
-            { name: 'Watch later', value: 'watchLater', checked: true },
             { name: 'Recommended videos', value: 'homeFeed', checked: true },
         ]
 
