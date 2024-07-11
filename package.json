@@ -5,7 +5,7 @@
   "description": "Export your data from YouTube and import it to an alternative platform",
   "scripts": {
     "start": "node ./src/cli.js",
-    "update-deps": "npx npm-check-updates -u"
+    "update-deps": "npx npm-check-updates --upgrade --install always"
   },
   "bin": {
     "yt2alt": "./src/cli.js"
@@ -20,6 +20,6 @@
     "clipboardy": "^4.0.0",
     "express": "^4.19.2",
     "open": "^10.1.0",
-    "youtubei.js": "^10.0.0"
+    "youtubei.js": "^10.1.0"
   }
 }
