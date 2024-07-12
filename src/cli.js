@@ -7,19 +7,32 @@ import { Utils } from "./utils.js";
 import { Interactive } from "./interactive.js";
 import { FreeTube } from "./freetube.js";
 import { ViewTube } from "./viewtube.js";
-
-const CACHE_ENABLED = false;
+import { Command } from 'commander';
 
 (async () => {
     Utils.printPackageVersion();
+
+    const program = new Command();
+    program
+        .option('-c, --cache', 'cache oauth tokens')
+        .option('-d, --debug', 'enable debug mode');
+
+    program.parse(process.argv);
+    const options = program.opts();
+    const cacheEnabled = !!options.cache;
+    const debugEnabled = !!options.debug;
 
     const initialAnswer = await YouTubeInteractive.loginDisclaimer();
     if (!initialAnswer) {
         return;
     }
 
-    const youtube = new YouTube();
-    await YouTubeInteractive.login(youtube, CACHE_ENABLED);
+    const youtube = new YouTube({
+        cacheEnabled,
+        debugEnabled,
+    });
+
+    await YouTubeInteractive.login(youtube, options.cache);
 
     console.log('Reading library...');
     const libraryPlaylists = await youtube.getLibraryPlaylists()
@@ -114,7 +127,7 @@ const CACHE_ENABLED = false;
         }
     }
 
-    if (!CACHE_ENABLED) {
+    if (!cacheEnabled) {
         await youtube.logout();
     }
 
