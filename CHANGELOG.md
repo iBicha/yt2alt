@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- `--cache` and `--debug` flags.
+  - `--cache`: Reuse login if token is cached.
+  - `--debug`: Add debug logging, mostly from [YouTube.js](https://github.com/LuanRT/YouTube.js)
+  - Usage: `npx yt2alt -- --cache --debug`
+
 ## [0.5.0] - 2024-06-16
 
 ### Changed

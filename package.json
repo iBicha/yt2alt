@@ -18,6 +18,7 @@
     "@inquirer/input": "^2.2.1",
     "@inquirer/prompts": "^5.1.2",
     "clipboardy": "^4.0.0",
+    "commander": "^12.1.0",
     "express": "^4.19.2",
     "open": "^10.1.0",
     "youtubei.js": "^10.1.0"

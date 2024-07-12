@@ -1,4 +1,4 @@
-import { Innertube, UniversalCache } from 'youtubei.js';
+import { Innertube, UniversalCache, Log } from 'youtubei.js';
 import checkbox, { Separator } from '@inquirer/checkbox';
 import { select } from '@inquirer/prompts';
 import confirm from '@inquirer/confirm';
@@ -8,6 +8,15 @@ import clipboard from 'clipboardy';
 const PLAYLIST_LIMIT = 100;
 
 export class YouTube {
+
+    constructor(opts) {
+        this.cacheEnabled = opts?.cacheEnabled || false;
+        this.debugEnabled = opts?.debugEnabled || false;
+
+        if (this.debugEnabled) {
+            Log.setLevel(Log.Level.ERROR, Log.Level.WARNING, Log.Level.INFO, Log.Level.DEBUG);
+        }
+    }
 
     async getProfile(fields) {
         const profile = {}
@@ -46,15 +55,14 @@ export class YouTube {
         return profile;
     }
 
-    async createSession(useCache = false) {
-        if (!this.innertube) {
-            if (useCache) {
-                this.innertube = await Innertube.create({
-                    cache: new UniversalCache(true, "./.cache")
-                });
-            } else {
-                this.innertube = await Innertube.create();
+    async createSession() {
+        if (!this.innertube) {            
+            const innertubeConfig = {};
+            if (this.cacheEnabled) {
+                innertubeConfig.cache = new UniversalCache(true, "./.cache");
             }
+
+            this.innertube = await Innertube.create(innertubeConfig);
         }
         return this.innertube;
     }
