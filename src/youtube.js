@@ -1,11 +1,58 @@
-import { Innertube, UniversalCache, Log } from 'youtubei.js';
+import { Innertube, UniversalCache, Log, Platform } from 'youtubei.js';
 import checkbox, { Separator } from '@inquirer/checkbox';
 import { select } from '@inquirer/prompts';
 import confirm from '@inquirer/confirm';
 import open from 'open';
 import clipboard from 'clipboardy';
+import { writeFileSync } from 'fs';
 
 const PLAYLIST_LIMIT = 100;
+
+async function fetchMiddleware(input, init, debugFile) {
+    const url = typeof input === 'string'
+        ? new URL(input)
+        : input instanceof URL
+            ? input
+            : new URL(input.url);
+
+    const method = init?.method || input?.method || 'GET';
+
+    const headers = init?.headers
+        ? new Headers(init.headers)
+        : input instanceof Request
+            ? input.headers
+            : new Headers();
+
+    const body = init?.body || (input instanceof Request ? input.body : null);
+
+    let log = `${new Date().toISOString()} - Request: ${method} ${url.toString()}\n`;
+    log += 'Request Headers:\n';
+    for (const [key, value] of headers.entries()) {
+        log += `  ${key}: ${value}\n`;
+    }
+    if (body) {
+        log += 'Body:\n';
+        log += body + '\n';
+    }
+
+    const response = await Platform.shim.fetch(input, init);
+
+    log += `Response: ${response.status} ${response.statusText}\n`;
+    log += 'Response Headers:\n';
+    for (const [key, value] of response.headers.entries()) {
+        log += `  ${key}: ${value}\n`;
+    }
+
+    const text = await response.text();
+    log += text + '\n\n';
+    writeFileSync(debugFile, log, { flag: 'a' });
+
+    // Reading .text() and .json() multiple times is not supported
+    response.text = async () => text;
+    response.json = async () => JSON.parse(text);
+
+    return response;
+}
 
 export class YouTube {
 
@@ -56,10 +103,15 @@ export class YouTube {
     }
 
     async createSession() {
-        if (!this.innertube) {            
+        if (!this.innertube) {
             const innertubeConfig = {};
             if (this.cacheEnabled) {
                 innertubeConfig.cache = new UniversalCache(true, "./.cache");
+            }
+            if (this.debugEnabled) {
+                innertubeConfig.fetch = async (input, init) => {
+                    return fetchMiddleware(input, init, 'yt2alt-debug.log');
+                }
             }
 
             this.innertube = await Innertube.create(innertubeConfig);
