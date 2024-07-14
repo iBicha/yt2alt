@@ -14,8 +14,8 @@ import { Command } from 'commander';
 
     const program = new Command();
     program
-        .option('-c, --cache', 'cache oauth tokens')
-        .option('-d, --debug', 'enable debug mode');
+        .option('-c, --cache', 'Cache oauth tokens. This will allow you to run yt2alt multiple times without logging in every time.')
+        .option('-d, --debug', 'Enable debug mode. This will print additional information to the console, and log YouTube.js requests to yt2alt-debug.log.');
 
     program.parse(process.argv);
     const options = program.opts();
