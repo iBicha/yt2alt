@@ -42,11 +42,12 @@ async function fetchMiddleware(input, init, debugFile) {
     for (const [key, value] of response.headers.entries()) {
         log += `  ${key}: ${value}\n`;
     }
-    // body
+
     const text = await response.text();
     log += text + '\n\n';
     writeFileSync(debugFile, log, { flag: 'a' });
 
+    // Reading .text() and .json() multiple times is not supported
     response.text = async () => text;
     response.json = async () => JSON.parse(text);
 
