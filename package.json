@@ -1,7 +1,7 @@
 {
   "name": "yt2alt",
   "type": "module",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Export your data from YouTube and import it to an alternative platform",
   "scripts": {
     "start": "node ./src/cli.js",
@@ -13,10 +13,10 @@
   "author": "Brahim Hadriche",
   "license": "AGPL-3.0-only",
   "dependencies": {
-    "@inquirer/checkbox": "^2.4.1",
-    "@inquirer/confirm": "^3.1.16",
-    "@inquirer/input": "^2.2.3",
-    "@inquirer/prompts": "^5.2.1",
+    "@inquirer/checkbox": "^2.4.2",
+    "@inquirer/confirm": "^3.1.17",
+    "@inquirer/input": "^2.2.4",
+    "@inquirer/prompts": "^5.3.2",
     "clipboardy": "^4.0.0",
     "commander": "^12.1.0",
     "express": "^4.19.2",
