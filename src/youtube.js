@@ -247,7 +247,7 @@ export class YouTube {
 
     toPlaylist(playlist) {
         // from FEplaylist_aggregation
-        if (playlist.type === 'LockupView' && playlist.content_type === 'PLAYLIST') {
+        if (playlist.type === 'LockupView' && (playlist.content_type === 'PLAYLIST' || playlist.content_type === 'PODCAST')) {
             return {
                 id: playlist.content_id,
                 title: playlist.metadata.title.text,
