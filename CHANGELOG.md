@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Dump the request/response data from [YouTube.js](https://github.com/LuanRT/YouTube.js) to `yt2alt-debug.log` when `--debug` flag is used
 
+### Fixed
+
+- A bug when importing a podcast playlist
+
 ## [0.6.0] - 2024-07-12
 
 ### Added
