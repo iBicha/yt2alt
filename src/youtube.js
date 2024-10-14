@@ -216,10 +216,16 @@ export class YouTube {
         }
 
         return videos.slice(0, limit)
-            .map(video => this.toVideo(video));
+            .map(video => this.toVideo(video))
+            .filter(video => !!video);
     }
 
     toVideo(video) {
+        // ShortsLockupView is for shorts, and is missing most fields, might as well skip it
+        if (video.type === 'ShortsLockupView') {
+            return null;
+        }
+
         return {
             id: video.id,
             title: video.title.text,
