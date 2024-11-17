@@ -25,15 +25,34 @@ async function fetchMiddleware(input, init, debugFile) {
 
     const body = init?.body || (input instanceof Request ? input.body : null);
 
+    let curl = `===== CURL =====\n`;
+
     let log = `${new Date().toISOString()} - Request: ${method} ${url.toString()}\n`;
+    curl += `curl "${url.toString()}"`;
+    if (method === 'HEAD') {
+        curl += ' \\\n -I';
+    } 
+    else {
+        curl += ' \\\n -X ' + method; 
+    } 
+
     log += 'Request Headers:\n';
     for (const [key, value] of headers.entries()) {
         log += `  ${key}: ${value}\n`;
+        curl += ` \\\n -H "${key}: ${value}"`;
     }
     if (body) {
         log += 'Body:\n';
         log += body + '\n';
+
+        curl += ` \\\n -d '${body}'`;
     }
+
+    curl += '\n================\n';
+    log += curl
+
+    writeFileSync(debugFile, log, { flag: 'a' });
+    log = '';
 
     const response = await Platform.shim.fetch(input, init);
 
